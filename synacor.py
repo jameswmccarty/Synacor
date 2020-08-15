@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import pickle
+
 stdin_buff = ''
 ip = 0
 
@@ -285,6 +287,25 @@ def ret():
 	else:
 		ip = retval - 1
 
+"""defined to help make the game easier"""
+def save():
+	global ip
+	global mem
+	global regs
+	global stdin_buff
+	state = (ip, mem, regs, stdin_buff)
+	with open('game.save', 'wb') as f:
+		pickle.dump(state, f)
+
+def load():
+	global ip
+	global mem
+	global regs
+	global stdin_buff
+	with open('game.save', 'rb') as f:
+		state = pickle.load(f)
+	ip, mem, regs, stdin_buff = state
+
 """
 out: 19 a
   write the character represented by ascii code <a> to the terminal
@@ -300,7 +321,15 @@ in: 20 a
 def opin(a):
 	global stdin_buff
 	while len(stdin_buff) == 0:
-		stdin_buff += (input(">") + '\n')
+		stdin_buff = input(">")
+		if stdin_buff == "save":
+			save()
+		elif stdin_buff == "load":
+			load()
+		elif stdin_buff == "regs":
+			print(regs)
+		else:
+			stdin_buff += '\n'
 	if is_reg(a):
 		regs[a] = ord(stdin_buff[0])
 	else:
