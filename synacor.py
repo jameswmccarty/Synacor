@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import pickle
+import dump_code
 
 stdin_buff = ''
 ip = 0
@@ -328,6 +329,8 @@ def opin(a):
 			load()
 		elif stdin_buff == "regs":
 			print(regs)
+		elif stdin_buff == "dump":
+			dump_code.dump_mem(mem)
 		else:
 			stdin_buff += '\n'
 	if is_reg(a):
