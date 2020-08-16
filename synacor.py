@@ -19,9 +19,7 @@ regs = {
 	32775 : 0}
 
 def is_reg(a):
-	if a >= 32768 and a <= 32775:
-		return True
-	return False
+	return True if 32768 <= a <= 32775 else False
 
 """an unbounded stack which holds individual 16-bit values"""
 """empty stack = error"""

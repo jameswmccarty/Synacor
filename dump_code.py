@@ -38,7 +38,7 @@ def dump_mem(mem):
 	with open('snapshot.txt', 'w') as outfile:
 		read_idx = 0
 		while read_idx < len(mem):
-			outfile.write(str(read_idx).rjust(5,'0')+' ')
+			outfile.write("0x"+hex(read_idx)[2:].rjust(4,'0')+' ')
 			if mem[read_idx] < len(ops):
 				name, size = ops[mem[read_idx]]
 				args = []
@@ -49,6 +49,10 @@ def dump_mem(mem):
 						value = regs[value]
 					elif name == "OUT":
 						value = chr(value)
+						if value == '\n':
+							value = "\\n"
+					elif name in ["JMP", "JT", "CALL", "JF"]:
+						value = hex(value)
 					else:
 						value = str(value)
 					args.append(value)
