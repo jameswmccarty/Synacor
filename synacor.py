@@ -5,6 +5,7 @@ import dump_code
 
 stdin_buff = ''
 ip = 0
+debug = False
 
 """eight registers"""
 """numbers 32768..32775 instead mean registers 0..7"""
@@ -267,8 +268,9 @@ call: 17 a
 def call(a):
 	global ip
 	push(ip+2)
-	if is_reg(a): 
+	if is_reg(a):
 		ip = regs[a] - 2
+		#print("Calling: ", hex(ip+2))
 	else:
 		ip = a - 2
 
@@ -291,8 +293,9 @@ def save():
 	global ip
 	global mem
 	global regs
+	global stack
 	global stdin_buff
-	state = (ip, mem, regs, stdin_buff)
+	state = (ip, mem, regs, stack, stdin_buff)
 	with open('game.save', 'wb') as f:
 		pickle.dump(state, f)
 
@@ -300,10 +303,11 @@ def load():
 	global ip
 	global mem
 	global regs
+	global stack
 	global stdin_buff
 	with open('game.save', 'rb') as f:
 		state = pickle.load(f)
-	ip, mem, regs, stdin_buff = state
+	ip, mem, regs, stack, stdin_buff = state
 
 """
 out: 19 a
@@ -319,6 +323,8 @@ in: 20 a
 """
 def opin(a):
 	global stdin_buff
+	global ip
+	global debug
 	while len(stdin_buff) == 0:
 		stdin_buff = input(">")
 		if stdin_buff == "save":
@@ -329,6 +335,23 @@ def opin(a):
 			print(regs)
 		elif stdin_buff == "dump":
 			dump_code.dump_mem(mem)
+		elif "reg" in stdin_buff:
+			stdin_buff = stdin_buff.replace("reg",'').strip()
+			target_reg, new_val = stdin_buff.split(' ')
+			stdin_buff = ''
+			regs[int(target_reg)+32768] = int(new_val)
+		elif "mem" in stdin_buff:
+			stdin_buff = stdin_buff.replace("mem",'').strip()
+			target_reg, new_val = stdin_buff.split(' ')
+			stdin_buff = ''
+			mem[int(target_reg)] = int(new_val)
+		elif stdin_buff == "stack":
+			print(stack)
+		elif "call" in stdin_buff:
+			stdin_buff = stdin_buff.replace("call",'').strip()
+			ip = int(stdin_buff) - 2
+		elif stdin_buff == "debug":
+			debug ^= True
 		else:
 			stdin_buff += '\n'
 	if is_reg(a):
@@ -351,6 +374,7 @@ if __name__ == "__main__":
 	with open("challenge.bin", 'rb') as infile:
 		raw_data = infile.read()
 
+
 	"""programs are loaded into memory starting at address 0"""
 	read_idx = 0
 	"""each number is stored as a 16-bit little-endian pair (low byte, high byte)"""
@@ -359,6 +383,9 @@ if __name__ == "__main__":
 		"""address 0 is the first 16-bit value, address 1 is the second 16-bit value, etc"""
 		raw_data = raw_data[2:]
 		read_idx += 1
+
+	#mem = "20 32774 17 6 6 47 7 32768 14 9 32768 32769 1 18 7 32769 27 9 32768 32768 32767 1 32769 32775 17 6 18 2 32768 9 32769 32769 32767 17 6 1 32769 32768 3 32768 9 32768 32768 32767 17 6 18 19 97 20 32774 20 32774 6 0"
+	#mem = [ int(x) for x in mem.split(' ') ]
 
 	# (function, number of arguments)
 	ops = [	(halt,0),
@@ -387,6 +414,10 @@ if __name__ == "__main__":
 	while True:
 		#print(ip, ' ', end='')
 		#print(mem[ip])
+		if debug:
+			print(regs)
+			#print(stack)
+			print(hex(ip))
 		func, numv = ops[mem[ip]]
 		if numv == 3:
 			func(mem[ip+1],mem[ip+2],mem[ip+3])
