@@ -3,7 +3,10 @@
 #include <pthread.h>
 #include <malloc.h>
 
-static int found = 0;
+/* 
+ * gcc -ansi -pedantic -Werror -Wall -O3 -lpthread valid3.c -o b.out
+ * ./b.out
+ */
 
 /*
 0x178b JT reg0 0x1793
@@ -30,12 +33,11 @@ static int found = 0;
 0x1573 EQ reg1 reg0 6 ; reg1 needs to equal '5' when call returns
 */
 
-static int next(int f) {
+static int found = 0; /* terminate running */
+
+static int next() {
 	static int r7_next = 6200; /* checked for values < 6400 on previous version */
 	pthread_mutex_t lock;
-	if(f != 0) {
-		found = 1;
-	}
 	r7_next++;
 	if(r7_next >= 32768) {
 		r7_next = 0;
@@ -59,12 +61,12 @@ int valid(int r0, int r1, int r7) {
 
 void * valid_c(void * t) {
 	int res, k;
-	k = next(0);
+	k = next();
 	res = valid(4, 1, k);
 	printf("%d, %d\n", k, res);
-	if(res == 5) {
+	if(res == 5) {  /* reg1 needs to equal '5' when call returns */
 		printf("Solution K is: %d", k);
-		next(1);
+		found = 1;
 	}
 	return NULL;
 }
