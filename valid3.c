@@ -69,7 +69,7 @@ void * valid_c(void * t) {
 		res = valid(4, 1, k);
 		printf("%d, %d\n", k, res);
 		if(res == 5) {  /* reg1 needs to equal '5' when call returns */
-			printf("Solution K is: %d", k);
+			printf("Solution K is: %d\n", k);
 			found = 1;
 		}
 	}
