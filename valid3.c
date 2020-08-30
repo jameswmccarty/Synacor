@@ -34,7 +34,7 @@
 */
 
 static int found = 0; /* terminate running */
-static int r7_next = 6200; /* checked for values < 6400 on previous version */
+static int r7_next = 0;
 pthread_mutex_t lock;
 
 int next() {
@@ -63,20 +63,22 @@ int valid(int r0, int r1, int r7) {
 }
 
 void * valid_c(void * t) {
-	int res, k;
-	k = next();
-	res = valid(4, 1, k);
-	printf("%d, %d\n", k, res);
-	if(res == 5) {  /* reg1 needs to equal '5' when call returns */
-		printf("Solution K is: %d", k);
-		found = 1;
+	while (!found) {
+		int res, k;
+		k = next();
+		res = valid(4, 1, k);
+		printf("%d, %d\n", k, res);
+		if(res == 5) {  /* reg1 needs to equal '5' when call returns */
+			printf("Solution K is: %d", k);
+			found = 1;
+		}
 	}
 	return NULL;
 }
 
 int main(int argc, char**argv) {
 
-	int num_threads = 16;
+	int num_threads = 12;
 	int i = 0;
 
 	pthread_t *threads;
@@ -90,7 +92,7 @@ int main(int argc, char**argv) {
 		for (i=0; i<num_threads; i++) {
 			if (0 != pthread_join (threads[i], NULL))
 				exit (EXIT_FAILURE);
-		}	
+		}
 	}
 	free(threads);
 	return 0;
