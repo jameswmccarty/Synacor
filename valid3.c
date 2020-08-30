@@ -34,17 +34,19 @@
 */
 
 static int found = 0; /* terminate running */
+static int r7_next = 6200; /* checked for values < 6400 on previous version */
 pthread_mutex_t lock;
 
-static int next() {
-	static int r7_next = 6200; /* checked for values < 6400 on previous version */
+int next() {
+	int nc;
 	pthread_mutex_lock(&lock);
+	nc = r7_next;
 	r7_next++;
 	if(r7_next >= 32768) {
 		r7_next = 0;
 	}
 	pthread_mutex_unlock(&lock);
-	return r7_next;
+	return nc;
 }
 
 int valid(int r0, int r1, int r7) {
