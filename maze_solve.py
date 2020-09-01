@@ -29,27 +29,17 @@ def bfs():
 		if (x,y) == (0,3) and w == 30:
 			return path
 
-		if (x,y) != (0,3):
-
-			for nx, step in ((x-1, 'n'), (x+1, 's')):
-				if nx >= 0 and nx < 4:
-					f = maze[nx][y]
+		elif (x,y) != (0,3):
+			for nx, ny, step in ((x-1,y, 'n'),(x+1,y,'s'),(x,y-1,'w'),(x,y+1,'e')):
+				if nx >= 0 and nx < 4 and ny >= 0 and ny < 4:
+					f = maze[nx][ny]
 					if f != None:
 						n_w = w
 						if callable(op):
 							n_w = op(w,f)
 						if n_w > 0:
-							q.append((nx,y,n_w,f,path+step))
+							q.append((nx,ny,n_w,f,path+step))
 
-			for ny, step in ((y-1, 'w'), (y+1, 'e')):
-				if ny >= 0 and ny < 4:
-					f = maze[x][ny]
-					if f != None:
-						n_w = w
-						if callable(op):
-							n_w = op(w,f)
-						if n_w > 0:
-							q.append((x,ny,n_w,f,path+step))
 
 
 if __name__ == "__main__":
