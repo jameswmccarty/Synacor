@@ -4,8 +4,7 @@
 #include <malloc.h>
 
 /* 
- * gcc -ansi -pedantic -Werror -Wall -O3 -lpthread valid3.c -o b.out
- * ./b.out
+ * gcc -ansi -pedantic -Werror -Wall -O3 -lpthread valid3.c
  */
 
 /*
@@ -54,7 +53,7 @@ int valid(int r0, int r1, int r7) {
 		return r7;
 	if (r0 == 1 && r1 > r0)
 		return (r1 + r7) % 32768;
-	while (r0 != 0){
+	if (r0 != 0){
 		if (r1 != 0)
 			return valid(r0-1, valid(r0,r1-1, r7)+1, r7);
 		return valid(r0-1, r7, r7);
@@ -84,16 +83,15 @@ int main(int argc, char**argv) {
 	pthread_t *threads;
 	threads = (pthread_t *) malloc (num_threads * sizeof (pthread_t));
 
-	while(!found) {
-		for(i=0; i<num_threads; i++) {
-			if (0 != pthread_create (&threads[i], NULL, valid_c, (void *) NULL))
-				exit (EXIT_FAILURE);
-		}
-		for (i=0; i<num_threads; i++) {
-			if (0 != pthread_join (threads[i], NULL))
-				exit (EXIT_FAILURE);
-		}
+	for(i=0; i<num_threads; i++) {
+		if (0 != pthread_create (&threads[i], NULL, valid_c, (void *) NULL))
+			exit (EXIT_FAILURE);
 	}
+	for (i=0; i<num_threads; i++) {
+		if (0 != pthread_join (threads[i], NULL))
+			exit (EXIT_FAILURE);
+	}
+
 	free(threads);
 	return 0;
 }
