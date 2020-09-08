@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
 				b = pop(&vm_stack);
 				if(b == -1)
 					return 0;
-				ip = is_reg(b) ? mem[b] : b;
+				ip = b;
 				break;
 			case 19: /* out */
 				b = is_reg(mem[ip+1]) ? mem[mem[ip+1]] : mem[ip+1];
@@ -237,7 +237,6 @@ int main(int argc, char **argv) {
 	}
 	return 0;
 }
-
 
 
 
