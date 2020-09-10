@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <malloc.h>
 
 #define BUFFMAX 30
@@ -73,6 +74,7 @@ int main(int argc, char **argv) {
 
 	FILE *infile;
 	short int b, c; /* temp vars */
+	int tmp0, tmp1; /* temp vars */
 	int in_idx = 0; /* index input buffer */
 	
 	/* read input file into the mem buffer */
@@ -221,8 +223,22 @@ int main(int argc, char **argv) {
 					if(fgets(stdinbuff, BUFFMAX-1, stdin)==NULL)
 						return -1;
 				}
-				mem[mem[ip+1]] = (unsigned short int) stdinbuff[in_idx];
-				in_idx++;
+				
+				/* check to see if VM level command was entered */
+				if(strstr(stdinbuff, "poke") != NULL) {
+					if(2 != sscanf(stdinbuff+4,"%d %d", &tmp0, &tmp1))
+						printf("Invalid 'poke' arguments.  Requires <addr> <value\n>");
+					else
+						mem[(unsigned short int) tmp0] = (unsigned short int) tmp1;
+				} else if(strstr(stdinbuff, "peek") != NULL) {
+					if(1 != sscanf(stdinbuff+4, "%d", &tmp0))
+						printf("Invalid 'peek' argument.  Requires <addr>.\n");
+					else
+						printf("%d\n", mem[(unsigned short int) tmp0]);
+				} else {				
+					mem[mem[ip+1]] = (unsigned short int) stdinbuff[in_idx];
+					in_idx++;
+				}
 				if(in_idx == BUFFMAX-1 || stdinbuff[in_idx] == '\0' || (in_idx > 0 && stdinbuff[in_idx-1] == '\n'))
 					in_idx = 0;
 				ip += 2;
@@ -237,7 +253,6 @@ int main(int argc, char **argv) {
 	}
 	return 0;
 }
-
 
 
 
